@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -7,17 +7,52 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final ApiService apiService = ApiService();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  void _login() async {
+  Future<bool> _checkLogin(String email, String password) async {
     try {
-      await apiService.login(emailController.text, passwordController.text);
-      Navigator.pushReplacementNamed(context, '/emotion_calendar');
+      final prefs = await SharedPreferences.getInstance();
+      String users = prefs.getString('users') ?? '';
+      print('SharedPreferences contents: $users');
+      List<String> userList = users.split('\n');
+      for (var user in userList) {
+        List<String> userData = user.split(':');
+        if (userData.length >= 2 &&
+            userData[0] == email &&
+            userData[1] == password) {
+          print('Login successful for $email');
+          return true;
+        }
+      }
+      print('User not found: $email');
+      return false;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de inicio de sesión: $e')),
+      print('Error checking login: $e');
+      return false;
+    }
+  }
+
+  void _loginUser() async {
+    bool loginSuccess =
+        await _checkLogin(_emailController.text, _passwordController.text);
+    if (loginSuccess) {
+      Navigator.pushReplacementNamed(context, '/calendar');
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Usuario o contraseña incorrectos'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        ),
       );
     }
   }
@@ -25,29 +60,33 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Iniciar Sesión'),
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             TextField(
-              controller: emailController,
+              controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
             ),
             TextField(
-              controller: passwordController,
+              controller: _passwordController,
               decoration: InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _login,
-              child: Text('Iniciar sesión'),
+              onPressed: _loginUser,
+              child: Text('Login'),
             ),
+            SizedBox(height: 10),
             TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/register'),
-              child: Text('Registrarse'),
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
+              child: Text('No tienes una cuenta? Regístrate'),
             ),
           ],
         ),

@@ -1,59 +1,60 @@
 import 'package:flutter/material.dart';
-import 'api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterPage extends StatefulWidget {
-  @override
-  _RegisterPageState createState() => _RegisterPageState();
-}
+class RegisterPage extends StatelessWidget {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-class _RegisterPageState extends State<RegisterPage> {
-  final ApiService apiService = ApiService();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  void _register() async {
+  Future<void> _registerUser(String name, String email, String password) async {
     try {
-      await apiService.register(
-        nameController.text,
-        emailController.text,
-        passwordController.text,
-      );
-      Navigator.pop(context);
+      final prefs = await SharedPreferences.getInstance();
+      String users = prefs.getString('users') ?? '';
+      users += '$email:$password:$name\n';
+      await prefs.setString('users', users);
+      print('User registered: $email:$password:$name');
+
+      // Verify the contents after writing
+      String contents = prefs.getString('users') ?? '';
+      print('SharedPreferences contents after registration: $contents');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de registro: $e')),
-      );
+      print('Error registering user: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Registro')),
+      appBar: AppBar(
+        title: Text('Registro'),
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             TextField(
-              controller: nameController,
+              controller: _nameController,
               decoration: InputDecoration(labelText: 'Nombre'),
             ),
             TextField(
-              controller: emailController,
+              controller: _emailController,
               decoration: InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
             ),
             TextField(
-              controller: passwordController,
+              controller: _passwordController,
               decoration: InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
             ),
-            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _register,
-              child: Text('Registrarse'),
+              onPressed: () async {
+                await _registerUser(_nameController.text, _emailController.text,
+                    _passwordController.text);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Usuario registrado')),
+                );
+                Navigator.pop(context);
+              },
+              child: Text('Registrar'),
             ),
           ],
         ),
