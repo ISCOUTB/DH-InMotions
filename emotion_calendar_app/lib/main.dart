@@ -13,7 +13,7 @@ void main() async {
 Future<void> _createTestUser() async {
   final prefs = await SharedPreferences.getInstance();
   if (!prefs.containsKey('users')) {
-    await prefs.setString('users', 'testuser:testpassword');
+    await prefs.setString('users', 'testuser:testpassword' + ':Test User\n');
   }
 }
 
