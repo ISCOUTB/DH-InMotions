@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'user_data_manager.dart';
 
 class EmotionCalendarPage extends StatefulWidget {
+  final String userEmail;
+
+  EmotionCalendarPage({required this.userEmail});
+
   @override
   _EmotionCalendarPageState createState() => _EmotionCalendarPageState();
 }
@@ -13,26 +17,18 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
   String _selectedEmotion = '';
   final TextEditingController _noteController = TextEditingController();
 
-  Future<void> _saveEmotion(String emotion, String note) async {
-    final prefs = await SharedPreferences.getInstance();
-    String dateTime = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
-    String emotionEntry = '[$dateTime] $emotion: $note';
-    List<String> emotions = prefs.getStringList('emotions') ?? [];
-    emotions.add(emotionEntry);
-    await prefs.setStringList('emotions', emotions);
-  }
-
-  Future<List<String>> _readEmotions() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList('emotions') ?? [];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendario de Emociones'),
         actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              Navigator.pushNamed(context, '/instructions');
+            },
+          ),
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
@@ -81,18 +77,23 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              _saveEmotion(_selectedEmotion, _noteController.text);
+            onPressed: () async {
+              await UserManager.saveEmotion(
+                widget.userEmail,
+                _selectedEmotion,
+                _noteController.text,
+              );
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Emoción guardada')),
               );
               _noteController.clear();
+              setState(() {});
             },
             child: Text('Guardar'),
           ),
           Expanded(
-            child: FutureBuilder<List<String>>(
-              future: _readEmotions(),
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: UserManager.getEmotions(widget.userEmail),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -102,9 +103,14 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                   return Center(child: Text('No hay emociones guardadas'));
                 } else {
                   return ListView(
-                    children: snapshot.data!
-                        .map((line) => ListTile(title: Text(line)))
-                        .toList(),
+                    children: snapshot.data!.map((emotion) {
+                      String dateTime = DateFormat('yyyy-MM-dd – kk:mm')
+                          .format(DateTime.parse(emotion['date']));
+                      return ListTile(
+                        title: Text('[$dateTime] ${emotion['emotion']}'),
+                        subtitle: Text(emotion['note']),
+                      );
+                    }).toList(),
                   );
                 }
               },

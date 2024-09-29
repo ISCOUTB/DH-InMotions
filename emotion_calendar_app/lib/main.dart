@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page.dart';
 import 'login_page.dart';
 import 'emotion_calendar_page.dart';
+import 'instructions_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/register': (context) => RegisterPage(),
         '/login': (context) => LoginPage(),
-        '/calendar': (context) => EmotionCalendarPage(),
+        '/calendar': (context) =>
+            EmotionCalendarPage(userEmail: 'testuser@example.com'),
+        '/instructions': (context) => InstructionsPage(),
       },
     );
   }

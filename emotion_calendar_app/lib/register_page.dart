@@ -1,25 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'user_data_manager.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _registerUser(String name, String email, String password) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      String users = prefs.getString('users') ?? '';
-      users += '$email:$password:$name\n';
-      await prefs.setString('users', users);
-      print('User registered: $email:$password:$name');
+  void _registerUser() async {
+    String name = _nameController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
-      // Verify the contents after writing
-      String contents = prefs.getString('users') ?? '';
-      print('SharedPreferences contents after registration: $contents');
-    } catch (e) {
-      print('Error registering user: $e');
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      _showErrorDialog('Por favor, completa todos los campos.');
+      return;
     }
+
+    bool registrationSuccess =
+        await UserManager.registerUser(name, email, password);
+    if (registrationSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Usuario registrado exitosamente')),
+      );
+      Navigator.pop(context);
+    } else {
+      _showErrorDialog(
+          'Error al registrar usuario. El email podría ya estar en uso.');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Aceptar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -31,30 +61,40 @@ class RegisterPage extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Nombre'),
+              decoration: InputDecoration(
+                labelText: 'Nombre',
+                border: OutlineInputBorder(),
+              ),
             ),
+            SizedBox(height: 16),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
             ),
+            SizedBox(height: 16),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
+              ),
               obscureText: true,
             ),
+            SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () async {
-                await _registerUser(_nameController.text, _emailController.text,
-                    _passwordController.text);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Usuario registrado')),
-                );
-                Navigator.pop(context);
-              },
-              child: Text('Registrar'),
+              onPressed: _registerUser,
+              child: Text('Registrarse'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+              ),
             ),
           ],
         ),

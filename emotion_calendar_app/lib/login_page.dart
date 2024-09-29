@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'user_data_manager.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,51 +10,39 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<bool> _checkLogin(String email, String password) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      String users = prefs.getString('users') ?? '';
-      print('SharedPreferences contents: $users');
-      List<String> userList = users.split('\n');
-      for (var user in userList) {
-        List<String> userData = user.split(':');
-        if (userData.length >= 2 &&
-            userData[0] == email &&
-            userData[1] == password) {
-          print('Login successful for $email');
-          return true;
-        }
-      }
-      print('User not found: $email');
-      return false;
-    } catch (e) {
-      print('Error checking login: $e');
-      return false;
+  void _loginUser() async {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      _showErrorDialog('Por favor, ingresa tu email y contraseña.');
+      return;
+    }
+
+    bool loginSuccess = await UserManager.loginUser(email, password);
+    if (loginSuccess) {
+      Navigator.pushReplacementNamed(context, '/calendar', arguments: email);
+    } else {
+      _showErrorDialog('Usuario o contraseña incorrectos');
     }
   }
 
-  void _loginUser() async {
-    bool loginSuccess =
-        await _checkLogin(_emailController.text, _passwordController.text);
-    if (loginSuccess) {
-      Navigator.pushReplacementNamed(context, '/calendar');
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('Usuario o contraseña incorrectos'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Aceptar'),
-            ),
-          ],
-        ),
-      );
-    }
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Aceptar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -66,27 +54,39 @@ class _LoginPageState extends State<LoginPage> {
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
             ),
+            SizedBox(height: 16),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Contraseña'),
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                border: OutlineInputBorder(),
+              ),
               obscureText: true,
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loginUser,
-              child: Text('Login'),
+              child: Text('Iniciar Sesión'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+              ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 16),
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/register');
               },
-              child: Text('No tienes una cuenta? Regístrate'),
+              child: Text('¿No tienes una cuenta? Regístrate'),
             ),
           ],
         ),
