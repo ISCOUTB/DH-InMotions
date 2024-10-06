@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page.dart';
 import 'login_page.dart';
 import 'emotion_calendar_page.dart';
-import 'instructions_page.dart';
+import 'biblioteca_archivos.dart'; // Importa la clase BibliotecaArchivos
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/calendar': (context) =>
             EmotionCalendarPage(userEmail: 'testuser@example.com'),
-        '/instructions': (context) => InstructionsPage(),
+        '/instructions': (context) =>
+            BibliotecaArchivos(), // Cambia la ruta a BibliotecaArchivos
       },
     );
   }

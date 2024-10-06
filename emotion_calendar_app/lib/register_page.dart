@@ -55,45 +55,87 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Registro'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: 'Nombre',
-                border: OutlineInputBorder(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromRGBO(15, 24, 87, 1), // Color azul oscuro
+              Color.fromRGBO(15, 67, 79, 1), // Color verde azulado
+              Color.fromRGBO(1, 36, 24, 1), // Color verde oscuro
+              Colors.black, // Negro
+            ],
+            stops: [0.1, 0.4, 0.7, 1], // Define cómo se distribuyen los colores
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Botón de volver en la esquina superior izquierda
+            Positioned(
+              top: 40, // Distancia desde la parte superior
+              left: 16, // Distancia desde la izquierda
+              child: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _registerUser,
-              child: Text('Registrarse'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
+            // Contenedor centrado con el formulario de registro
+            Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 400, // Ajusta el ancho máximo del contenedor
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TextField(
+                        controller: _nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Nombre',
+                          border: OutlineInputBorder(),
+                          suffixIcon: Icon(Icons.person),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          suffixIcon: Icon(Icons.email),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Contraseña',
+                          border: OutlineInputBorder(),
+                          suffixIcon: Icon(Icons.lock),
+                        ),
+                        obscureText: true,
+                      ),
+                      SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _registerUser,
+                        child: Text('Registrarse'),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(double.infinity, 50),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
