@@ -3,7 +3,6 @@ import 'dart:convert';
 
 class UserManager {
   static const String _usersKey = 'users';
-  static const String _emotionsKey = 'emotions';
 
   // Register a new user
   static Future<bool> registerUser(
