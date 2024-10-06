@@ -111,39 +111,37 @@ class UserManager {
     }
   }
 
-  // Save emotion
+  // Save emotion (now only for the specific user)
   static Future<void> saveEmotion(
       String email, String emotion, String note) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String emotions = prefs.getString(_emotionsKey) ?? '';
-      List<Map<String, dynamic>> emotionList = emotions.isNotEmpty
-          ? List<Map<String, dynamic>>.from(json.decode(emotions))
-          : [];
+      String userEmotions = prefs.getString(email) ?? '[]'; // Use email as key
+      List<Map<String, dynamic>> emotionList =
+          List<Map<String, dynamic>>.from(json.decode(userEmotions));
 
       emotionList.add({
-        'email': email,
         'emotion': emotion,
         'note': note,
         'date': DateTime.now().toIso8601String(),
       });
 
-      await prefs.setString(_emotionsKey, json.encode(emotionList));
+      await prefs.setString(
+          email, json.encode(emotionList)); // Save only for the specific user
     } catch (e) {
       print('Error saving emotion: $e');
     }
   }
 
-  // Get emotions
+  // Get emotions (now only for the specific user)
   static Future<List<Map<String, dynamic>>> getEmotions(String email) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String emotions = prefs.getString(_emotionsKey) ?? '';
-      List<Map<String, dynamic>> emotionList = emotions.isNotEmpty
-          ? List<Map<String, dynamic>>.from(json.decode(emotions))
-          : [];
+      String userEmotions = prefs.getString(email) ?? '[]'; // Use email as key
+      List<Map<String, dynamic>> emotionList =
+          List<Map<String, dynamic>>.from(json.decode(userEmotions));
 
-      return emotionList.where((emotion) => emotion['email'] == email).toList();
+      return emotionList;
     } catch (e) {
       print('Error getting emotions: $e');
       return [];

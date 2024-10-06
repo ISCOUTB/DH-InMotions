@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'user_data_manager.dart';
+import 'package:intl/intl.dart'; // Asegúrate de agregar esta importación
 
 class EmotionCalendarPage extends StatefulWidget {
   final String userEmail;
@@ -21,19 +22,17 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendario de Emociones'),
-        backgroundColor: Colors.blue, // Usando Colors.blue
+        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: Icon(Icons.library_books),
             onPressed: () {
-              // Redirigir a la misma página (biblioteca se refiere al calendario en este caso)
               Navigator.pushNamed(context, '/instructions');
             },
           ),
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () {
-              // Lógica de logout
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),
@@ -45,8 +44,8 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF001F3F), // Azul oscuro
-              Color(0xFF003366), // Azul medio
+              Color(0xFF001F3F),
+              Color(0xFF003366),
             ],
           ),
         ),
@@ -55,7 +54,6 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: <Widget>[
-                // Contenedor para el calendario a la izquierda
                 Expanded(
                   flex: 1,
                   child: Column(
@@ -79,30 +77,26 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                             formatButtonVisible: true,
                             formatButtonShowsNext: false,
                             formatButtonDecoration: BoxDecoration(
-                              color: Colors
-                                  .blue, // Usando Colors.blue para el botón
+                              color: Colors.blue,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             titleCentered: true,
                             titleTextStyle: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors
-                                  .black, // Usando Colors.black para el texto
+                              color: Colors.black,
                             ),
                           ),
                           calendarStyle: CalendarStyle(
                             outsideDaysVisible: false,
                             selectedDecoration: BoxDecoration(
-                              color: Color.fromARGB(
-                                  255, 213, 186, 152), // Beige seleccionado
+                              color: Color.fromARGB(255, 213, 186, 152),
                               shape: BoxShape.circle,
                             ),
                           ),
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Mostrar las notas guardadas debajo del calendario
                       Expanded(
                         child: FutureBuilder<List<Map<String, dynamic>>>(
                           future: UserManager.getEmotions(widget.userEmail),
@@ -124,15 +118,19 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                                 itemCount: snapshot.data!.length,
                                 itemBuilder: (context, index) {
                                   final emotion = snapshot.data![index];
+                                  final dateTime =
+                                      DateTime.parse(emotion['date']);
+                                  final formattedDate =
+                                      DateFormat('dd/MM/yyyy').format(dateTime);
                                   return ListTile(
-                                    title: Text('${emotion['emotion']}',
-                                        style: TextStyle(
-                                            color: Colors
-                                                .white)), // Color de letra blanco
-                                    subtitle: Text(emotion['note'],
-                                        style: TextStyle(
-                                            color: Colors
-                                                .white)), // Color de letra blanco
+                                    title: Text(
+                                      '$formattedDate - ${emotion['emotion']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    subtitle: Text(
+                                      '${emotion['note']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   );
                                 },
                               );
@@ -144,12 +142,10 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                   ),
                 ),
                 SizedBox(width: 16),
-                // Contenedor para las notas y las emociones en la derecha
                 Expanded(
                   flex: 1,
                   child: Column(
                     children: [
-                      // Contenedor de las notas
                       Container(
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -164,8 +160,7 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
-                                color: Colors
-                                    .black, // Color de texto para el título
+                                color: Colors.black,
                               ),
                             ),
                             TextField(
@@ -174,16 +169,13 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: 'Escribe una nota',
-                                hintStyle: TextStyle(
-                                    color:
-                                        Colors.black54), // Color para el hint
+                                hintStyle: TextStyle(color: Colors.black54),
                               ),
                             ),
                           ],
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Contenedor de las emociones
                       Container(
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -198,8 +190,7 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
-                                color: Colors
-                                    .black, // Color de texto para el título
+                                color: Colors.black,
                               ),
                             ),
                             _emotionButton('😊', 'Feliz'),
@@ -211,9 +202,19 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      // Botón de Guardar emociones
                       ElevatedButton(
                         onPressed: () async {
+                          // Validación antes de guardar
+                          if (_selectedEmotion.isEmpty ||
+                              _noteController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Por favor, selecciona una emoción y escribe una nota.')),
+                            );
+                            return; // Salimos de la función si la validación falla
+                          }
+
                           await UserManager.saveEmotion(
                             widget.userEmail,
                             _selectedEmotion,
@@ -223,11 +224,14 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                             SnackBar(content: Text('Emoción guardada')),
                           );
                           _noteController.clear();
-                          setState(() {});
+                          setState(() {
+                            _selectedEmotion =
+                                ''; // Limpiamos la emoción seleccionada
+                          });
                         },
                         child: Text('Guardar emociones'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Usar Colors.blue
+                          backgroundColor: Colors.blue,
                           padding: EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 12,
@@ -248,7 +252,6 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
     );
   }
 
-  // Botón de emoción con selección activa
   Widget _emotionButton(String emoji, String emotion) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -260,8 +263,8 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: _selectedEmotion == emotion
-              ? Color.fromARGB(255, 213, 186, 152) // Beige seleccionado
-              : Colors.grey[300], // Color predeterminado para no seleccionado
+              ? Color.fromARGB(255, 213, 186, 152)
+              : Colors.grey[300],
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: EdgeInsets.symmetric(vertical: 10),
         ),
@@ -269,8 +272,7 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
           children: [
             Text(emoji, style: TextStyle(fontSize: 24)),
             SizedBox(width: 8),
-            Text(emotion,
-                style: TextStyle(color: Colors.white)), // Color de letra blanco
+            Text(emotion, style: TextStyle(color: Colors.black)),
           ],
         ),
       ),

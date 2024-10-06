@@ -1,32 +1,49 @@
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+import sqlite3
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///emotions.db'
-db = SQLAlchemy(app)
 
-class Emotion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date_time = db.Column(db.String(50), nullable=False)
-    emotion = db.Column(db.String(20), nullable=False)
-    note = db.Column(db.String(200), nullable=True)
+# Conexión y creación de la tabla
+def connect_db():
+    conn = sqlite3.connect('user_notes.db')
+    return conn
 
-@app.route('/add_emotion', methods=['POST'])
-def add_emotion():
-    data = request.get_json()
-    new_emotion = Emotion(
-        date_time=data['date_time'],
-        emotion=data['emotion'],
-        note=data['note']
-    )
-    db.session.add(new_emotion)
-    try:
-        db.session.commit()
-        return jsonify({"message": "Emoción guardada exitosamente"}), 201
-    except:
-        db.session.rollback()
-        return jsonify({"message": "Error al guardar la emoción"}), 400
+def create_table(conn):
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email TEXT NOT NULL,
+            note TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
 
-if __name__ == '__main__':
-    db.create_all()
+@app.route('/save_note', methods=['POST'])
+def save_note():
+    data = request.json
+    user_email = data['user_email']
+    note = data['note']
+    conn = connect_db()
+    create_table(conn)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO notes (user_email, note) VALUES (?, ?)
+    ''', (user_email, note))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'Nota guardada'}), 201
+
+@app.route('/get_notes/<user_email>', methods=['GET'])
+def get_notes(user_email):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT note FROM notes WHERE user_email = ?
+    ''', (user_email,))
+    notes = cursor.fetchall()
+    conn.close()
+    return jsonify({'notes': [note[0] for note in notes]})
+
+if __name__ == "__main__":
     app.run(debug=True)
