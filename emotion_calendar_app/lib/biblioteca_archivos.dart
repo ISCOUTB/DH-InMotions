@@ -59,14 +59,12 @@ class _BibliotecaArchivosState extends State<BibliotecaArchivos> {
     },
   ];
 
-  String contenidoSeleccionado = "Selecciona un archivo para ver su contenido.";
+  String contenidoSeleccionado =
+      "Selecciona un ejercicio para ver su paso a paso.";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Biblioteca de Archivos'),
-      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -81,30 +79,22 @@ class _BibliotecaArchivosState extends State<BibliotecaArchivos> {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Biblioteca de Archivos',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
                     Container(
-                      width: 200,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Buscar archivo...',
-                          hintStyle: TextStyle(color: Colors.white70),
-                          fillColor: Colors.white10,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        'Biblioteca de Archivos',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
@@ -174,33 +164,44 @@ class _BibliotecaArchivosState extends State<BibliotecaArchivos> {
                         margin: EdgeInsets.all(20),
                         padding: EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color.fromARGB(
+                              255, 11, 78, 133), // Fondo negro original
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Contenido del Archivo',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Text(
-                                  contenidoSeleccionado,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize:
-                                          16), // Aumenta el tamaño de la fuente
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(
+                                255, 216, 202, 169), // Color beige
+                          ),
+                          padding: EdgeInsets.all(16), // Espaciado interno
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Pasos a Seguir',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color.fromARGB(
+                                      255, 0, 0, 0), // Cambia el color a negro
                                 ),
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 20),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Text(
+                                    contenidoSeleccionado,
+                                    style: TextStyle(
+                                      color: const Color.fromARGB(255, 0, 0,
+                                          0), // Cambia el color a negro
+                                      fontSize:
+                                          28, // Aumenta el tamaño de la fuente
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
