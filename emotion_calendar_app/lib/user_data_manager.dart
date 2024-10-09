@@ -4,60 +4,61 @@ import 'dart:convert';
 class UserManager {
   static const String _usersKey = 'users';
 
-  // Register a new user
+  // Registrar un nuevo usuario
   static Future<bool> registerUser(
       String name, String email, String password) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String users = prefs.getString(_usersKey) ?? '';
 
-      // Check if user already exists
-      if (users.contains(email)) {
-        return false; // User already exists
+      // Verificar si el usuario o el correo ya existe
+      if (users.contains(email) || users.contains(name)) {
+        return false; // Usuario o correo ya existe
       }
 
       users += '$email:$password:$name\n';
       await prefs.setString(_usersKey, users);
-      print('User registered: $email:$password:$name');
+      print('Usuario registrado: $email:$password:$name');
       return true;
     } catch (e) {
-      print('Error registering user: $e');
+      print('Error registrando usuario: $e');
       return false;
     }
   }
 
-  // Login user
-  static Future<bool> loginUser(String email, String password) async {
+  // Iniciar sesión con correo o nombre de usuario
+  static Future<bool> loginUser(String identifier, String password) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String users = prefs.getString(_usersKey) ?? '';
       List<String> userList = users.split('\n');
       for (var user in userList) {
         List<String> userData = user.split(':');
-        if (userData.length >= 2 &&
-            userData[0] == email &&
+        if (userData.length >= 3 &&
+            (userData[0] == identifier || userData[2] == identifier) &&
             userData[1] == password) {
-          print('Login successful for $email');
+          print('Inicio de sesión exitoso para $identifier');
           return true;
         }
       }
-      print('User not found: $email');
+      print('Usuario no encontrado: $identifier');
       return false;
     } catch (e) {
-      print('Error checking login: $e');
+      print('Error en el inicio de sesión: $e');
       return false;
     }
   }
 
-  // Get user details
-  static Future<Map<String, String>?> getUserDetails(String email) async {
+  // Obtener detalles del usuario por correo o nombre de usuario
+  static Future<Map<String, String>?> getUserDetails(String identifier) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String users = prefs.getString(_usersKey) ?? '';
       List<String> userList = users.split('\n');
       for (var user in userList) {
         List<String> userData = user.split(':');
-        if (userData.length >= 3 && userData[0] == email) {
+        if (userData.length >= 3 &&
+            (userData[0] == identifier || userData[2] == identifier)) {
           return {
             'email': userData[0],
             'name': userData[2],
@@ -66,22 +67,23 @@ class UserManager {
       }
       return null;
     } catch (e) {
-      print('Error getting user details: $e');
+      print('Error obteniendo detalles del usuario: $e');
       return null;
     }
   }
 
-  // Update user details
+  // Actualizar los detalles del usuario
   static Future<bool> updateUserDetails(
-      String email, String newName, String newPassword) async {
+      String identifier, String newName, String newPassword) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String users = prefs.getString(_usersKey) ?? '';
       List<String> userList = users.split('\n');
       for (int i = 0; i < userList.length; i++) {
         List<String> userData = userList[i].split(':');
-        if (userData.length >= 3 && userData[0] == email) {
-          userList[i] = '$email:$newPassword:$newName';
+        if (userData.length >= 3 &&
+            (userData[0] == identifier || userData[2] == identifier)) {
+          userList[i] = '${userData[0]}:$newPassword:$newName';
           String updatedUsers = userList.join('\n');
           await prefs.setString(_usersKey, updatedUsers);
           return true;
@@ -89,33 +91,34 @@ class UserManager {
       }
       return false;
     } catch (e) {
-      print('Error updating user details: $e');
+      print('Error actualizando detalles del usuario: $e');
       return false;
     }
   }
 
-  // Delete user
-  static Future<bool> deleteUser(String email) async {
+  // Eliminar usuario
+  static Future<bool> deleteUser(String identifier) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String users = prefs.getString(_usersKey) ?? '';
       List<String> userList = users.split('\n');
-      userList.removeWhere((user) => user.split(':')[0] == email);
+      userList.removeWhere((user) =>
+          user.split(':')[0] == identifier || user.split(':')[2] == identifier);
       String updatedUsers = userList.join('\n');
       await prefs.setString(_usersKey, updatedUsers);
       return true;
     } catch (e) {
-      print('Error deleting user: $e');
+      print('Error eliminando usuario: $e');
       return false;
     }
   }
 
-  // Save emotion (now only for the specific user)
+  // Guardar emoción para un usuario específico
   static Future<void> saveEmotion(
-      String email, String emotion, String note) async {
+      String identifier, String emotion, String note) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String userEmotions = prefs.getString(email) ?? '[]'; // Use email as key
+      String userEmotions = prefs.getString(identifier) ?? '[]';
       List<Map<String, dynamic>> emotionList =
           List<Map<String, dynamic>>.from(json.decode(userEmotions));
 
@@ -125,24 +128,24 @@ class UserManager {
         'date': DateTime.now().toIso8601String(),
       });
 
-      await prefs.setString(
-          email, json.encode(emotionList)); // Save only for the specific user
+      await prefs.setString(identifier, json.encode(emotionList));
     } catch (e) {
-      print('Error saving emotion: $e');
+      print('Error guardando emoción: $e');
     }
   }
 
-  // Get emotions (now only for the specific user)
-  static Future<List<Map<String, dynamic>>> getEmotions(String email) async {
+  // Obtener emociones para un usuario específico
+  static Future<List<Map<String, dynamic>>> getEmotions(
+      String identifier) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String userEmotions = prefs.getString(email) ?? '[]'; // Use email as key
+      String userEmotions = prefs.getString(identifier) ?? '[]';
       List<Map<String, dynamic>> emotionList =
           List<Map<String, dynamic>>.from(json.decode(userEmotions));
 
       return emotionList;
     } catch (e) {
-      print('Error getting emotions: $e');
+      print('Error obteniendo emociones: $e');
       return [];
     }
   }
