@@ -1,16 +1,15 @@
 # emotion_calendar_app
 
-A new Flutter project.
+# InMotions
 
-## Getting Started
+**InMotions** es una plataforma dedicada a promover la salud mental y el bienestar emocional, ofreciendo recursos accesibles para mejorar la calidad de vida. Brindamos contenido educativo, herramientas prácticas y apoyo especializado para acompañarte hacia una vida equilibrada y resiliente.
 
-This project is a starting point for a Flutter application.
+Creemos que el bienestar emocional es clave para una vida plena, y nuestro compromiso es crear un espacio seguro donde puedas aprender a:
 
-A few resources to get you started if this is your first Flutter project:
+- Gestionar tus emociones.
+- Fortalecer tu autoestima.
+- Enfrentar los desafíos diarios.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+¡Gracias por formar parte de **InMotions** y por dar el primer paso hacia tu bienestar emocional!
