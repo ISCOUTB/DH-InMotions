@@ -10,6 +10,4 @@ Creemos que el bienestar emocional es clave para una vida plena, y nuestro compr
 - Fortalecer tu autoestima.
 - Enfrentar los desafíos diarios.
 
----
 
-¡Gracias por formar parte de **InMotions** y por dar el primer paso hacia tu bienestar emocional!
