@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'register_page.dart';
+import 'emotion_list_page.dart';
 import 'login_page.dart';
 import 'emotion_calendar_page.dart';
 import 'biblioteca_archivos.dart'; // Importa la clase BibliotecaArchivos
@@ -30,6 +31,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/register': (context) => RegisterPage(),
         '/login': (context) => LoginPage(),
+        '/emotion_list': (context) =>
+            EmotionListPage(userEmail: 'user@example.com'),
         '/calendar': (context) =>
             EmotionCalendarPage(userEmail: 'testuser@example.com'),
         '/instructions': (context) =>

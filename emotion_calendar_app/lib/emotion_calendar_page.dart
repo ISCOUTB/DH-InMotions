@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'user_data_manager.dart';
-import 'package:intl/intl.dart'; // Asegúrate de agregar esta importación
+import 'package:intl/intl.dart'; // Para formatear la fecha
+import 'emotion_list_page.dart'; // Importamos la nueva página de lista de emociones
 
 class EmotionCalendarPage extends StatefulWidget {
   final String userEmail;
@@ -28,6 +29,19 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
             icon: Icon(Icons.library_books),
             onPressed: () {
               Navigator.pushNamed(context, '/instructions');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.list_alt),
+            onPressed: () {
+              // Navegar a la nueva página EmotionListPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      EmotionListPage(userEmail: widget.userEmail),
+                ),
+              );
             },
           ),
           IconButton(
