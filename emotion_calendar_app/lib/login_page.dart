@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 import 'user_data_manager.dart';
 
-class LoginPage extends StatefulWidget {
-  @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
+class LoginPage extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _loginUser() async {
+  void _loginUser(BuildContext context) async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      _showErrorDialog('Por favor, ingresa tu email y contraseña.');
+      _showErrorDialog(context, 'Por favor, ingresa tu email y contraseña.');
       return;
     }
 
@@ -23,11 +18,11 @@ class _LoginPageState extends State<LoginPage> {
     if (loginSuccess) {
       Navigator.pushReplacementNamed(context, '/calendar', arguments: email);
     } else {
-      _showErrorDialog('Usuario o contraseña incorrectos');
+      _showErrorDialog(context, 'Usuario o contraseña incorrectos');
     }
   }
 
-  void _showErrorDialog(String message) {
+  void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -66,7 +61,6 @@ class _LoginPageState extends State<LoginPage> {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: ConstrainedBox(
-              // Limitamos el ancho máximo del contenedor
               constraints: BoxConstraints(
                 maxWidth: 600, // Ajusta el ancho máximo
               ),
@@ -128,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             SizedBox(height: 20),
                             ElevatedButton(
-                              onPressed: _loginUser,
+                              onPressed: () => _loginUser(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFF4CAF50),
                                 padding: EdgeInsets.symmetric(

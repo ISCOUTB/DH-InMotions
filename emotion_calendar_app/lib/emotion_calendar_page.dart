@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'user_data_manager.dart';
-import 'package:intl/intl.dart'; // Para formatear la fecha
-import 'emotion_list_page.dart'; // Importamos la nueva página de lista de emociones
+import 'package:intl/intl.dart';
+import 'emotion_list_page.dart';
 
 class EmotionCalendarPage extends StatefulWidget {
   final String userEmail;
@@ -34,7 +34,6 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
           IconButton(
             icon: Icon(Icons.list_alt),
             onPressed: () {
-              // Navegar a la nueva página EmotionListPage
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -218,7 +217,6 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                       SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () async {
-                          // Validación antes de guardar
                           if (_selectedEmotion.isEmpty ||
                               _noteController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -226,7 +224,7 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                                   content: Text(
                                       'Por favor, selecciona una emoción y escribe una nota.')),
                             );
-                            return; // Salimos de la función si la validación falla
+                            return;
                           }
 
                           await UserManager.saveEmotion(
@@ -247,12 +245,9 @@ class _EmotionCalendarPageState extends State<EmotionCalendarPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           padding: EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 12,
-                          ),
+                              horizontal: 32, vertical: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                              borderRadius: BorderRadius.circular(8)),
                         ),
                       ),
                     ],

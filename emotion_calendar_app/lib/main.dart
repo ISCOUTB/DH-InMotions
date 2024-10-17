@@ -4,19 +4,11 @@ import 'register_page.dart';
 import 'emotion_list_page.dart';
 import 'login_page.dart';
 import 'emotion_calendar_page.dart';
-import 'biblioteca_archivos.dart'; // Importa la clase BibliotecaArchivos
+import 'biblioteca_archivos.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await _createTestUser();
   runApp(MyApp());
-}
-
-Future<void> _createTestUser() async {
-  final prefs = await SharedPreferences.getInstance();
-  if (!prefs.containsKey('users')) {
-    await prefs.setString('users', 'testuser:testpassword' + ':Test User\n');
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -33,10 +25,11 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/emotion_list': (context) =>
             EmotionListPage(userEmail: 'user@example.com'),
-        '/calendar': (context) =>
-            EmotionCalendarPage(userEmail: 'testuser@example.com'),
-        '/instructions': (context) =>
-            BibliotecaArchivos(), // Cambia la ruta a BibliotecaArchivos
+        '/calendar': (context) {
+          final email = ModalRoute.of(context)!.settings.arguments as String?;
+          return EmotionCalendarPage(userEmail: email ?? 'user@example.com');
+        },
+        '/instructions': (context) => BibliotecaArchivos(),
       },
     );
   }
