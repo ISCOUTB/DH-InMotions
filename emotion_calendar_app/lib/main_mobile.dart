@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'register_page.dart';
-import 'emotion_list_page.dart';
-import 'login_page.dart';
-import 'emotion_calendar_page.dart';
-import 'biblioteca_archivos.dart';
 import 'RegisterMovil.dart';
 import 'LoginMovil.dart';
 import 'EmotionListMovil.dart';
