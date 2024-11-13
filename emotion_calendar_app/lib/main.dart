@@ -65,6 +65,10 @@ class WebApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Bienestar Mental',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       initialRoute: '/login',
       routes: {
         '/register': (context) => RegisterPage(),
@@ -73,7 +77,8 @@ class WebApp extends StatelessWidget {
             EmotionListPage(userEmail: 'user@example.com'),
         '/calendar': (context) =>
             EmotionCalendarPage(userEmail: 'testuser@example.com'),
-        '/instructions': (context) => BibliotecaArchivos(),
+        '/instructions': (context) =>
+            BibliotecaArchivos(), // Cambia la ruta a BibliotecaArchivos
       },
     );
   }
