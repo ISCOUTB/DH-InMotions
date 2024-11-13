@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:emotion_calendar_app/main.dart'; // Asegúrate de que esta ruta sea correcta
+import 'package:emotion_calendar_app/main_web.dart'; // Asegúrate de que esta ruta sea correcta
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
