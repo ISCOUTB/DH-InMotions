@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'UserManagerMovil.dart';
+import 'package:intl/intl.dart'; // Necesario para el formato de fechas
 
 class EmotionListMovil extends StatefulWidget {
   final String userEmail;
-
   EmotionListMovil({required this.userEmail});
 
   @override
@@ -12,41 +11,88 @@ class EmotionListMovil extends StatefulWidget {
 }
 
 class _EmotionListMovilState extends State<EmotionListMovil> {
+  List<Map<String, dynamic>> _emotions = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmotions();
+  }
+
+  Future<void> _loadEmotions() async {
+    try {
+      _emotions = await UserManagerMovil.getEmotions(widget.userEmail);
+    } catch (e) {
+      print('Error al cargar las emociones: $e');
+      _emotions = [];
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      // Convierte la cadena a un objeto DateTime
+      DateTime date = DateTime.parse(dateString);
+      // Formatea la fecha en "MMM dd, HH:mm" (ejemplo: "Nov 13, 14:30")
+      return DateFormat('MMM dd, HH:mm').format(date);
+    } catch (e) {
+      print('Error formateando la fecha: $e');
+      return dateString; // Devuelve la fecha sin formato si ocurre un error
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Lista de Emociones'),
+        backgroundColor: Colors.blue[800],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future:
-            UserManagerMovil.getEmotions(widget.userEmail), // Lee las emociones
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error al cargar las emociones"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No hay emociones guardadas."));
-          } else {
-            // Si las emociones están disponibles
-            final emotions = snapshot.data!;
-            return ListView.builder(
-              itemCount: emotions.length,
-              itemBuilder: (context, index) {
-                final emotion = emotions[index];
-                return ListTile(
-                  title: Text(emotion['emotion']),
-                  subtitle: Text(emotion['note'] ?? 'Sin notas'),
-                  trailing: Text(
-                    DateFormat('yyyy-MM-dd')
-                        .format(DateTime.parse(emotion['date'])),
+      body: Container(
+        color: Colors.blue[900],
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : _emotions.isEmpty
+                ? Center(
+                    child: Text(
+                      'No hay emociones registradas.',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadEmotions,
+                    child: ListView.builder(
+                      itemCount: _emotions.length,
+                      itemBuilder: (context, index) {
+                        final emotion = _emotions[index];
+                        return Card(
+                          color: Colors.green[400],
+                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                          child: ListTile(
+                            title: Text(
+                              emotion['emotion'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            subtitle: Text(
+                              emotion['note'] ?? '',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                            trailing: Text(
+                              _formatDate(emotion['date']), // Formatea la fecha aquí
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                );
-              },
-            );
-          }
-        },
       ),
     );
   }
